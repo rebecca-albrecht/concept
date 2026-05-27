@@ -11,7 +11,7 @@
 #'
 #' @return A `ggplot` object.
 #'
-#' @keywords internal
+#' @export
 plot_effect_group <- function(data, measure, group1, group2 = NULL) {
   measure_sym <- rlang::sym(measure)
   group1_sym <- rlang::sym(group1)

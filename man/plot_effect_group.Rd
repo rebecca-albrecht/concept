@@ -23,4 +23,3 @@ Plots the mean of a selected effect measure by one grouping variable,
 optionally faceted by a second grouping variable. Error bars show
 approximate 95\% confidence intervals based on the standard error.
 }
-\keyword{internal}
