@@ -3,3 +3,4 @@
 export(ecc)
 export(estimate_concept_change)
 export(plot_effect_group)
+export(save_plot)
