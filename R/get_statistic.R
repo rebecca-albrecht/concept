@@ -107,8 +107,8 @@
       dplyr::transmute(
         roi = roi,
         contrast = .data$contrast,
-        condition = baseline_label,
-        x = x,
+        .ecc_condition = baseline_label,
+        .ecc_x = .ecc_x,
         n = .data$n_baseline,
         success = .data$sum_baseline
       ),
@@ -116,8 +116,8 @@
       dplyr::transmute(
         roi = roi,
         contrast = .data$contrast,
-        condition = treatment_label,
-        x = x,
+        .ecc_condition = treatment_label,
+        .ecc_x = .ecc_x,
         n = .data$n_treatment,
         success = .data$sum_treatment
       )
@@ -167,7 +167,7 @@
   out <- data.frame(
     roi = rep(data_roi$roi, times = n_boot),
     contrast = rep(data_roi$contrast, times = n_boot),
-    x = rep(data_roi$x, times = n_boot),
+    .ecc_x = rep(data_roi$.ecc_x, times = n_boot),
     draw_id = rep(paste0("response_", seq_len(n_boot)), each = n_rows_roi),
     baseline = as.vector(baseline_mat),
     treatment = as.vector(treatment_mat),

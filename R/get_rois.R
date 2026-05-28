@@ -30,26 +30,26 @@
 
   # aggregate to x-level for both conditions
   dat_p <- data |>
-    dplyr::filter(condition == baseline_label | condition == treatment_label) |>
-    dplyr::group_by(condition, x) |>
+    dplyr::filter(.ecc_condition == baseline_label | .ecc_condition == treatment_label) |>
+    dplyr::group_by(.ecc_condition, .ecc_x) |>
     dplyr::summarise(
-      mean = mean(responsenum),
-      sum = sum(responsenum),
+      mean = mean(.ecc_response),
+      sum = sum(.ecc_response),
       n = dplyr::n(),
       .groups = "drop"
     )
 
-  dat_baseline <- dat_p |> dplyr::filter(.data$condition == baseline_label)
-  dat_treatment <- dat_p |> dplyr::filter(.data$condition == treatment_label)
+  dat_baseline <- dat_p |> dplyr::filter(.data$.ecc_condition == baseline_label)
+  dat_treatment <- dat_p |> dplyr::filter(.data$.ecc_condition == treatment_label)
 
   # merge baseline and treatment on x
   dat_p_merged <- merge(
     dat_baseline,
     dat_treatment,
-    by = c("x"),
+    by = c(".ecc_x"),
     suffixes = c("_baseline", "_treatment")
   ) |>
-    dplyr::arrange(.data$x) |>
+    dplyr::arrange(.data$.ecc_x) |>
     dplyr::mutate(
       diff = .data$mean_treatment - .data$mean_baseline
     )
@@ -58,7 +58,7 @@
   if (n_rows == 0L) {
     return(
       tibble::tibble(
-        x = NA_real_,
+        .ecc_x = NA_real_,
         mean_treatment = NA_real_,
         mean_baseline = NA_real_,
         sum_treatment = NA_real_,
@@ -81,10 +81,10 @@
   high_idx <- seq.int(max(1L, n_rows - roi_size + 1L), n_rows)
   dat_high <- cbind(dat_p_merged[high_idx, ], roi = 4)
 
-  if (decision_boundary > max(dat_p_merged$x) | decision_boundary < min(dat_p_merged$x)) {
+  if (decision_boundary > max(dat_p_merged$.ecc_x) | decision_boundary < min(dat_p_merged$.ecc_x)) {
     return(
       tibble::tibble(
-        x = NA_real_,
+        .ecc_x = NA_real_,
         mean_treatment = NA_real_,
         mean_baseline = NA_real_,
         sum_treatment = NA_real_,
@@ -101,8 +101,8 @@
 
 
   # mid roi around boundary
-  mid_l <- max(which(dat_p_merged$x < decision_boundary), na.rm = TRUE)
-  mid_u <- min(which(dat_p_merged$x > decision_boundary), na.rm = TRUE)
+  mid_l <- max(which(dat_p_merged$.ecc_x < decision_boundary), na.rm = TRUE)
+  mid_u <- min(which(dat_p_merged$.ecc_x > decision_boundary), na.rm = TRUE)
 
 
   mid_min <- max(1L, mid_l - (roi_size - 1L))
@@ -147,10 +147,10 @@
 .filter_rois <- function(dat, rois) {
   double_x <- dat |>
     dplyr::filter(roi %in% rois) |>
-    dplyr::group_by(x) |>
+    dplyr::group_by(.ecc_x) |>
     dplyr::summarise(n = dplyr::n(), .groups = "drop") |>
     dplyr::filter(n > 1) |>
-    dplyr::pull(x)
+    dplyr::pull(.ecc_x)
 
   if (length(double_x) > 1) {
     lower <- double_x[1:floor(length(double_x) / 2)]
@@ -158,13 +158,13 @@
     dat |>
       dplyr::filter(roi %in% rois) |>
       dplyr::filter(dplyr::case_when(
-        roi == rois[1] & x %in% double_x ~ x %in% lower,
-        roi == rois[2] & x %in% double_x ~ x %in% upper,
+        roi == rois[1] & .ecc_x %in% double_x ~ .ecc_x %in% lower,
+        roi == rois[2] & .ecc_x %in% double_x ~ .ecc_x %in% upper,
         T ~ T
       ))
   } else {
     dat |>
       dplyr::filter(roi %in% rois) |>
-      dplyr::filter(!(x %in% double_x))
+      dplyr::filter(!(.ecc_x %in% double_x))
   }
 }

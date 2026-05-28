@@ -19,13 +19,13 @@
 #' @keywords internal
 .get_db <- function(data, condition) {
   # Keep only trials from the requested condition.
-  data_condition <- dplyr::filter(data, condition == !!condition)
+  data_condition <- dplyr::filter(data, .ecc_condition == !!condition)
 
   warn_msg <- NULL
 
   # Fit logistic regression and store possible warnings.
   mod <- withCallingHandlers(
-    stats::glm(responsenum ~ x,
+    stats::glm(.ecc_response ~ .ecc_x,
       data = data_condition,
       family = stats::binomial()
     ),

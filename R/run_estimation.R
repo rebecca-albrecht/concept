@@ -38,8 +38,8 @@
   df <- dplyr::bind_cols(grouping, df)
 
   # check if both conditions exist
-  has_baseline <- any(df$condition == baseline_label, na.rm = TRUE)
-  has_treatment <- any(df$condition == treatment_label, na.rm = TRUE)
+  has_baseline <- any(df$.ecc_condition == baseline_label, na.rm = TRUE)
+  has_treatment <- any(df$.ecc_condition == treatment_label, na.rm = TRUE)
 
   if (!has_baseline || !has_treatment) {
     return(
@@ -51,8 +51,8 @@
           boot_median = NA_real_,
           boot_ci_upper = NA_real_,
           boot_mean = NA_real_,
-          n_x_baseline = sum(df$condition == baseline_label, na.rm = TRUE),
-          n_x_treatment = sum(df$condition == treatment_label, na.rm = TRUE),
+          n_x_baseline = sum(df$.ecc_condition == baseline_label, na.rm = TRUE),
+          n_x_treatment = sum(df$.ecc_condition == treatment_label, na.rm = TRUE),
           status = "error",
           flags = "no_baseline_or_treatment"
         )

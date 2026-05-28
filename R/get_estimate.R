@@ -57,10 +57,10 @@ estimate_concept_change <- function(
   df_parsed <- .parse_concept_formula(formula, data)
 
   df <- df_parsed$df
-  response_var <- df_parsed$response
-  intensity_var <- df_parsed$intensity
-  time_var <- df_parsed$condition
-  grouping <- df_parsed$grouping
+  response_var <- df_parsed$.ecc_response
+  intensity_var <- df_parsed$.ecc_x
+  time_var <- df_parsed$.ecc_condition
+  grouping_var <- df_parsed$.ecc_grouping
 
   scale_size <- length(unique(df[, intensity_var]))
   roi_size <- max(1L, (scale_size * roi_coverage_percent) %/% 100L)
@@ -71,9 +71,9 @@ estimate_concept_change <- function(
 
   df_renamed <- df |>
     dplyr::rename(
-      responsenum = !!rlang::sym(response_var),
-      x = !!rlang::sym(intensity_var),
-      condition = !!rlang::sym(time_var),
+      .ecc_response = !!rlang::sym(response_var),
+      .ecc_x = !!rlang::sym(intensity_var),
+      .ecc_condition = !!rlang::sym(time_var),
     )
 
   if (!is.null(dir)) {
@@ -87,7 +87,7 @@ estimate_concept_change <- function(
 
   # Run core pipeline
   res <- df_renamed |>
-    dplyr::group_by(dplyr::across(dplyr::all_of(grouping))) |>
+    dplyr::group_by(dplyr::across(dplyr::all_of(grouping_var))) |>
     dplyr::group_modify(~ .estimate_one_group(.x,
       grouping = .y,
       baseline_label = baseline_label,
@@ -172,5 +172,5 @@ ecc <- estimate_concept_change
     }
   )
 
-  return(list(df = mf, response = lhs, intensity = rhs_1, condition = rhs_2, grouping = rhs_3))
+  return(list(df = mf, .ecc_response = lhs, .ecc_x = rhs_1, .ecc_condition = rhs_2, .ecc_grouping = rhs_3))
 }
