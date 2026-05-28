@@ -75,8 +75,8 @@ plot_effect_group <- function(data, measure, group1, group2 = NULL) {
 #'
 #' @return Invisibly returns the input filename.
 #'
-#' @keywords internal
-.save_plot <- function(plot, filename, height = 8, width = 8) {
+#' @export
+save_plot <- function(plot, filename, height = 8, width = 8) {
   ggplot2::ggsave(
     filename = filename,
     plot = plot,
