@@ -78,9 +78,17 @@ estimate_concept_change <- function(
 
   if (!is.null(dir)) {
     if (!file.exists(dir)) {
-      dir.create(dir)
-      dir.create(paste0(dir, "/rois/"))
-      dir.create(paste0(dir, "/estimates/"))
+      if (!is.null(dir)) {
+        dir.create(file.path(dir, "rois"),
+          recursive = TRUE,
+          showWarnings = FALSE
+        )
+
+        dir.create(file.path(dir, "estimates"),
+          recursive = TRUE,
+          showWarnings = FALSE
+        )
+      }
     }
   }
 
