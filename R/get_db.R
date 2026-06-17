@@ -1,4 +1,4 @@
-#' Estimate the decision boundary for one participant and condition
+#' Estimate the decision boundary for one grouping
 #'
 #' Fits a logistic regression of the binary response on the stimulus value
 #' for a single participant in a single condition. The decision boundary is defined
@@ -49,7 +49,6 @@
   }
 
   tibble::tibble(
-    participant = unique(data$participant),
     condition = condition,
     beta0 = beta0,
     beta1 = beta1,
