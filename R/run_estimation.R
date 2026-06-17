@@ -41,19 +41,16 @@
 
   if (!has_baseline || !has_treatment) {
     return(
-      dplyr::bind_cols(
-        grouping,
-        dplyr::tibble(
-          effect_mean = NA_real_,
-          boot_ci_lower = NA_real_,
-          boot_median = NA_real_,
-          boot_ci_upper = NA_real_,
-          boot_mean = NA_real_,
-          n_x_baseline = sum(df$.ecc_condition == baseline_label, na.rm = TRUE),
-          n_x_treatment = sum(df$.ecc_condition == treatment_label, na.rm = TRUE),
-          status = "error",
-          flags = "no_baseline_or_treatment"
-        )
+      dplyr::tibble(
+        effect_mean = NA_real_,
+        boot_ci_lower = NA_real_,
+        boot_median = NA_real_,
+        boot_ci_upper = NA_real_,
+        boot_mean = NA_real_,
+        n_x_baseline = sum(df$.ecc_condition == baseline_label, na.rm = TRUE),
+        n_x_treatment = sum(df$.ecc_condition == treatment_label, na.rm = TRUE),
+        status = "error",
+        flags = "no_baseline_or_treatment"
       )
     )
   }
