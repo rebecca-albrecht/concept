@@ -110,10 +110,16 @@ estimate_concept_change <- function(
     dplyr::ungroup()
 
   if (!is.null(dir)) {
-    saveRDS(res, paste0(dir, "/estimates/roi_size_", roi_size, ".RDS"))
+    estimates_dir <- file.path(dir, "estimates")
+
+    saveRDS(
+      res,
+      file.path(estimates_dir, paste0("roi_size_", roi_size, ".rds"))
+    )
+
     write.table(
       res,
-      paste0(dir, "/estimates/roi_size_", roi_size, ".csv"),
+      file.path(estimates_dir, paste0("roi_size_", roi_size, ".csv")),
       sep = ";",
       dec = ".",
       row.names = FALSE

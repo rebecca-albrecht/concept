@@ -87,17 +87,29 @@
 
 
   if (!is.null(dir)) {
-    dir_rois <- paste0(dir, "rois/roi_size_", roi_size)
-    if (!file.exists(dir_rois)) {
-      dir.create(dir_rois)
-    }
+    dir_rois <- file.path(
+      dir,
+      "rois",
+      paste0("roi_size_", roi_size)
+    )
+
+    dir.create(
+      dir_rois,
+      recursive = TRUE,
+      showWarnings = FALSE
+    )
+
     if (has_no_rois) {
       interval_table <- cbind(grouping, NA, db = db_info$decision_boundary)
     } else {
       interval_table <- cbind(grouping, intervals, db = db_info$decision_boundary)
     }
 
-    location <- paste0(dir_rois, "/", grouping |> paste0(collapse = "_"), ".csv")
+    location <- file.path(
+      dir_rois,
+      paste0(paste(grouping, collapse = "_"), ".csv")
+    )
+
     write.table(
       interval_table,
       location,
