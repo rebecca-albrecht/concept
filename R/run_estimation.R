@@ -30,8 +30,6 @@
     beta,
     n_boot,
     dir) {
-  # print(grouping)
-
   flags <- c()
   status <- 1
 
@@ -82,12 +80,18 @@
     treatment_label = treatment_label
   )
 
+
+  has_no_rois <- nrow(intervals) == 0 ||
+    all(is.na(intervals$roi)) ||
+    any(intervals$status == 3, na.rm = TRUE)
+
+
   if (!is.null(dir)) {
     dir_rois <- paste0(dir, "rois/roi_size_", roi_size)
     if (!file.exists(dir_rois)) {
       dir.create(dir_rois)
     }
-    if (nrow(intervals) == 0) {
+    if (has_no_rois) {
       interval_table <- cbind(grouping, NA, db = db_info$decision_boundary)
     } else {
       interval_table <- cbind(grouping, intervals, db = db_info$decision_boundary)
@@ -112,8 +116,7 @@
   n_treatment <- if ("n_treatment" %in% names(intervals)) sum(intervals$n_treatment, na.rm = TRUE) else NA_real_
 
   # Compute group-level concept change estimate with optional bootstrap.
-
-  if (nrow(intervals) == 0) {
+  if (has_no_rois) {
     if (bootstrapping) {
       est <- cbind(
         boot_ci_lower = NA, boot_median = NA, boot_ci_upper = NA, boot_mean = NA, effect_mean = NA

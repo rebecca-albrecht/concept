@@ -82,7 +82,7 @@
   dat_high <- cbind(dat_p_merged[high_idx, ], roi = 4)
 
   if (decision_boundary > max(dat_p_merged$.ecc_x) | decision_boundary < min(dat_p_merged$.ecc_x)) {
-    return(
+    ret <-
       tibble::tibble(
         .ecc_x = NA_real_,
         mean_treatment = NA_real_,
@@ -96,7 +96,7 @@
         status = 3,
         flag = "decision boundary outside of possible regions of interest"
       )
-    )
+    return(ret)
   }
 
 
