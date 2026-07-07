@@ -105,19 +105,19 @@
   data_boot <- dplyr::bind_rows(
     data_roi |>
       dplyr::transmute(
-        roi = roi,
+        roi = .data$roi,
         contrast = .data$contrast,
         .ecc_condition = baseline_label,
-        .ecc_x = .ecc_x,
+        .ecc_x = .data$.ecc_x,
         n = .data$n_baseline,
         success = .data$sum_baseline
       ),
     data_roi |>
       dplyr::transmute(
-        roi = roi,
+        roi = .data$roi,
         contrast = .data$contrast,
         .ecc_condition = treatment_label,
-        .ecc_x = .ecc_x,
+        .ecc_x = .data$.ecc_x,
         n = .data$n_treatment,
         success = .data$sum_treatment
       )
@@ -135,8 +135,8 @@
 
   if (any(valid)) {
     # Extract vectors for valid rows
-    n_vec <- data_boot$n[valid]
-    s_vec <- data_boot$success[valid]
+    n_vec <- as.numeric(data_boot$n[valid])
+    s_vec <- as.numeric(data_boot$success[valid])
     k <- length(n_vec)
 
     # Build parameters for Beta posterior (vectorized over draws)
@@ -173,6 +173,7 @@
     treatment = as.vector(treatment_mat),
     diff = as.vector(diff_mat)
   )
+
 
   return(out)
 }

@@ -2,7 +2,7 @@
 #'
 #' Plots the mean of a selected effect measure by one grouping variable,
 #' optionally faceted by a second grouping variable. Error bars show
-#' approximate 95% confidence intervals based on the standard error.
+#' confidence intervals based on the standard error and Student's t distribution.
 #'
 #' @param data A data frame containing the effect estimates.
 #' @param measure Name of the numeric effect variable to plot.
@@ -29,8 +29,11 @@ plot_effect_group <- function(data, measure, group1, group2 = NULL) {
   data_sum <- data_p |>
     dplyr::summarise(
       change_mean = mean(!!measure_sym, na.rm = TRUE),
+      change_n = sum(!is.na(!!measure_sym)),
       change_se = stats::sd(!!measure_sym, na.rm = TRUE) /
-        sqrt(sum(!is.na(!!measure_sym))),
+        sqrt(.data$change_n),
+      change_ci = stats::qt(0.975, df = pmax(.data$change_n - 1, 1)) *
+        .data$change_se,
       .groups = "drop"
     )
 
@@ -45,8 +48,8 @@ plot_effect_group <- function(data, measure, group1, group2 = NULL) {
     ggplot2::geom_col() +
     ggplot2::geom_errorbar(
       ggplot2::aes(
-        ymin = .data$change_mean - 1.96 * .data$change_se,
-        ymax = .data$change_mean + 1.96 * .data$change_se
+        ymin = .data$change_mean - .data$change_ci,
+        ymax = .data$change_mean + .data$change_ci
       ),
       width = 0.1
     ) +

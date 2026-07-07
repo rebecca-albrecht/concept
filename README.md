@@ -4,6 +4,8 @@
 
 The package was developed to quantify changes in categorization behavior under changing statistical environments, such as prevalence-induced concept change (PICC), while focusing specifically on changes near category boundaries.
 
+The implementation is centered around `ecc()`, an alias for `estimate_concept_change()`.
+
 ## Installation
 
 Install the development version from GitHub:
@@ -12,6 +14,12 @@ Install the development version from GitHub:
 install.packages("remotes")
 
 remotes::install_github("rebecca-albrecht/concept")
+```
+
+or
+
+```r
+pak::pak("rebecca-albrecht/concept")
 ```
 
 ## Main Features
@@ -23,6 +31,17 @@ remotes::install_github("rebecca-albrecht/concept")
 - ROI-based analysis around decision boundaries
 - Group-level visualization utilities
 
+## Input Requirements
+
+The package expects trial-level categorization data with:
+
+- a binary response variable coded `0`/`1`
+- a one-dimensional ordered stimulus-intensity variable
+- a condition variable containing a baseline and a treatment condition
+- one or more grouping variables, typically participant identifiers and experimental manipulations
+
+For PICC-style applications, the response value `1` should code the target category whose concept is expected to extend, usually the category whose prevalence decreases in the treatment condition. With this coding, positive `effect_mean` values indicate an extension of the target category in the ambiguity regions relative to the prototypical regions.
+
 ## Example Data
 
 The package includes a simulated example dataset:
@@ -32,6 +51,7 @@ head(concept_data)
 ```
 
 The dataset contains:
+
 - participant identifiers
 - experimental manipulation
 - baseline/treatment conditions
@@ -51,14 +71,24 @@ results <- ecc(
   roi_coverage_percent = 6,
   baseline_label = "baseline",
   treatment_label = "treatment",
-  bootstrapping = FALSE,
-  dir = file.path(getwd(), "results")
+  bootstrapping = FALSE
 )
 
 plot_effect_group(
   data = results,
   measure = "effect_mean",
   group1 = "manipulation"
+)
+```
+
+To save intermediate ROI tables and estimates for inspection, pass an output directory:
+
+```r
+results <- ecc(
+  formula,
+  data = concept_data,
+  bootstrapping = FALSE,
+  dir = file.path(getwd(), "results")
 )
 ```
 
@@ -77,14 +107,46 @@ responsenum ~ x | condition | participant + manipulation
 ```
 
 where:
+
 - `responsenum` is the binary response variable
 - `x` is the ordered stimulus intensity dimension
 - `condition` defines baseline vs. treatment conditions
 - `participant` and `manipulation` define grouping variables
 
+## Bootstrap Confidence Intervals
+
+By default, `ecc()` returns point estimates only. Set `bootstrapping = TRUE` to compute participant-level beta-binomial bootstrap intervals:
+
+```r
+results_boot <- ecc(
+  formula,
+  data = concept_data,
+  baseline_label = "baseline",
+  treatment_label = "treatment",
+  bootstrapping = TRUE,
+  n_boot = 1000
+)
+```
+
+When bootstrapping is enabled, the output includes `boot_ci_lower`, `boot_median`, `boot_ci_upper`, and `boot_mean`.
+
+The plotting helper `plot_effect_group()` summarizes participant-level estimates by group. Its error bars are group-level confidence intervals based on the standard error and Student's t distribution; they are not the participant-level bootstrap intervals.
+
+## Output
+
+`ecc()` returns one row per grouping combination. Common output columns are:
+
+- `effect_mean`: participant-level concept-change estimate
+- `db`: estimated baseline decision boundary
+- `beta0`, `beta1`: logistic boundary-model coefficients
+- `n_x_baseline`, `n_x_treatment`: observations contributing to the selected ROIs
+- `status`: estimation status (`ok`, `flagged`, or `error`)
+- `flags`: diagnostic messages
+- `boot_ci_lower`, `boot_ci_upper`: participant-level bootstrap interval bounds, returned only when bootstrapping is enabled
+
 ## Current Status
 
-The package is currently under active development. Function names and interfaces may still change.
+The package is under active development, but the exported user-facing interface is intended to remain stable for reproducible analyses. Breaking changes should be documented explicitly.
 
 ## License
 
