@@ -7,7 +7,8 @@
 .get_rois(data, decision_boundary, roi_size, baseline_label, treatment_label)
 }
 \arguments{
-\item{data}{A data frame containing \code{condition}, \code{x}, and \code{responsenum}.}
+\item{data}{A data frame containing \code{.ecc_condition}, \code{.ecc_x}, and
+\code{.ecc_response}.}
 
 \item{decision_boundary}{Estimated decision boundary from the baseline condition.}
 

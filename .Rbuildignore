@@ -1,2 +1,4 @@
 ^concept\.Rproj$
 ^\.Rproj\.user$
+^\.git$
+^\.agents$

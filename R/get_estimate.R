@@ -24,8 +24,9 @@
 #' @param data A data frame containing all variables referenced in \code{formula}.
 #' @param baseline_label,treatment_label Labels identifying the baseline and treatment conditions
 #'   (default \code{"baseline"} and \code{"treatment"}).
-#' @param roi_coverage_percent Width of each analysis band, expressed as a percentage of
-#'   the stimulus scale. Default is 6.
+#' @param roi_coverage_percent Number of unique observed stimulus-intensity
+#'   levels included in each analysis band, expressed as a percentage of all
+#'   unique observed intensity levels. Default is 6.
 #' @param bootstrapping Logical. If \code{TRUE}, bootstrap confidence intervals
 #'   are computed for each participant (grouping) using beta-binomial resampling.
 #' @param n_boot Number of bootstrap draws. Default is 1000.
@@ -36,9 +37,15 @@
 #'   for the estimated effect, optional bootstrap summaries, and diagnostic
 #'   information.
 #'
+#' @details Within each ROI, stimulus-intensity levels receive equal weight
+#'   regardless of the number of trials observed at each level. For reproducible
+#'   bootstrap intervals, call [set.seed()] before this function.
+#'
+#' @importFrom rlang .data
+#'
 #' @examples
 #' estimate_concept_change(responsenum ~ x | condition | participant + manipulation,
-#'   data = data_test
+#'   data = concept_data
 #' )
 #'
 #' @export
@@ -117,7 +124,7 @@ estimate_concept_change <- function(
       file.path(estimates_dir, paste0("roi_size_", roi_size, ".rds"))
     )
 
-    write.table(
+    utils::write.table(
       res,
       file.path(estimates_dir, paste0("roi_size_", roi_size, ".csv")),
       sep = ";",
@@ -173,7 +180,7 @@ ecc <- estimate_concept_change
 
   # Note: model.frame() will error early if variables are missing from `data`
   mf <- tryCatch(
-    model.frame(f, data = data, na.action = stats::na.omit),
+    stats::model.frame(f, data = data, na.action = stats::na.omit),
     error = function(e) {
       stop("Could not construct data frame from formula. ",
         "Please check that all variables exist in `data`.\n\n",

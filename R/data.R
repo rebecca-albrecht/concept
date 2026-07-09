@@ -1,0 +1,15 @@
+#' Simulated Categorization Data
+#'
+#' A simulated trial-level dataset for demonstrating concept-change estimation.
+#'
+#' @format A data frame with 4,000 rows and five variables:
+#' \describe{
+#'   \item{participant}{Integer participant identifier.}
+#'   \item{manipulation}{Experimental manipulation group.}
+#'   \item{condition}{Baseline or treatment condition.}
+#'   \item{x}{Ordered stimulus-intensity value.}
+#'   \item{responsenum}{Binary categorization response coded 0/1.}
+#' }
+#'
+#' @source Simulated for this package.
+"concept_data"

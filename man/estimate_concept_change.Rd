@@ -40,8 +40,9 @@ ecc(
 \item{baseline_label, treatment_label}{Labels identifying the baseline and treatment conditions
 (default \code{"baseline"} and \code{"treatment"}).}
 
-\item{roi_coverage_percent}{Width of each analysis band, expressed as a percentage of
-the stimulus scale. Default is 6.}
+\item{roi_coverage_percent}{Number of unique observed stimulus-intensity
+levels included in each analysis band, expressed as a percentage of all
+unique observed intensity levels. Default is 6.}
 
 \item{bootstrapping}{Logical. If \code{TRUE}, bootstrap confidence intervals
 are computed for each participant (grouping) using beta-binomial resampling.}
@@ -78,10 +79,14 @@ The formula declares:
 \item \strong{Grouping variables:} optional grouping variables, such as
 \code{participant} and \code{manipulation}
 }
+
+Within each ROI, stimulus-intensity levels receive equal weight
+regardless of the number of trials observed at each level. For reproducible
+bootstrap intervals, call \code{\link[=set.seed]{set.seed()}} before this function.
 }
 \examples{
 estimate_concept_change(responsenum ~ x | condition | participant + manipulation,
-  data = data_test
+  data = concept_data
 )
 
 }

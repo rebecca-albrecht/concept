@@ -18,7 +18,9 @@ Filtered data frame with non-overlapping roi assignments.
 \description{
 Internal helper used to ensure that adjacent regions of interest (rois)
 do not contain duplicate stimulus intensity values (\code{x}). If overlaps occur,
-duplicated values are split between the lower and upper roi so that each
-intensity value is assigned uniquely to one region.
+multiple duplicated values are split between the lower and upper ROI so
+that each retained intensity value is assigned uniquely to one region. If
+exactly one intensity value is shared, it is removed from both ROIs to keep
+the adjacent ROIs symmetric.
 }
 \keyword{internal}

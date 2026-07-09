@@ -9,7 +9,8 @@
 #' the baseline and treatment conditions, then merges both conditions on common intensity
 #' values. It returns condition differences for the selected rois.
 #'
-#' @param data A data frame containing `condition`, `x`, and `responsenum`.
+#' @param data A data frame containing `.ecc_condition`, `.ecc_x`, and
+#'   `.ecc_response`.
 #' @param decision_boundary Estimated decision boundary from the baseline condition.
 #' @param roi_size Number of stimulus intensity levels per roi.
 #' @param baseline_label Label identifying the baseline condition.
@@ -30,11 +31,14 @@
 
   # aggregate to x-level for both conditions
   dat_p <- data |>
-    dplyr::filter(.ecc_condition == baseline_label | .ecc_condition == treatment_label) |>
-    dplyr::group_by(.ecc_condition, .ecc_x) |>
+    dplyr::filter(
+      .data$.ecc_condition == baseline_label |
+        .data$.ecc_condition == treatment_label
+    ) |>
+    dplyr::group_by(.data$.ecc_condition, .data$.ecc_x) |>
     dplyr::summarise(
-      mean = mean(.ecc_response),
-      sum = sum(.ecc_response),
+      mean = mean(.data$.ecc_response),
+      sum = sum(.data$.ecc_response),
       n = dplyr::n(),
       .groups = "drop"
     )
@@ -81,7 +85,9 @@
   high_idx <- seq.int(max(1L, n_rows - roi_size + 1L), n_rows)
   dat_high <- cbind(dat_p_merged[high_idx, ], roi = 4)
 
-  if (decision_boundary > max(dat_p_merged$.ecc_x) | decision_boundary < min(dat_p_merged$.ecc_x)) {
+  if (!is.finite(decision_boundary) ||
+      decision_boundary <= min(dat_p_merged$.ecc_x) ||
+      decision_boundary >= max(dat_p_merged$.ecc_x)) {
     ret <-
       tibble::tibble(
         .ecc_x = NA_real_,
@@ -108,7 +114,7 @@
   mid_min <- max(1L, mid_l - (roi_size - 1L))
   mid_max <- min(n_rows, mid_u + (roi_size - 1L))
 
-  if (mid_min <= max(low_idx) | mid_max >= max(high_idx)) {
+  if (mid_min <= max(low_idx) | mid_max >= min(high_idx)) {
     flag <- "rois are not distinct, possibly not enough observations in critical intensities"
     status <- 2
   }
@@ -134,8 +140,10 @@
 #'
 #' Internal helper used to ensure that adjacent regions of interest (rois)
 #' do not contain duplicate stimulus intensity values (`x`). If overlaps occur,
-#' duplicated values are split between the lower and upper roi so that each
-#' intensity value is assigned uniquely to one region.
+#' multiple duplicated values are split between the lower and upper ROI so
+#' that each retained intensity value is assigned uniquely to one region. If
+#' exactly one intensity value is shared, it is removed from both ROIs to keep
+#' the adjacent ROIs symmetric.
 #'
 #' @param dat Data frame containing roi assignments.
 #' @param rois Integer vector of length 2 indicating the adjacent rois
@@ -146,25 +154,25 @@
 #' @keywords internal
 .filter_rois <- function(dat, rois) {
   double_x <- dat |>
-    dplyr::filter(roi %in% rois) |>
-    dplyr::group_by(.ecc_x) |>
+    dplyr::filter(.data$roi %in% rois) |>
+    dplyr::group_by(.data$.ecc_x) |>
     dplyr::summarise(n = dplyr::n(), .groups = "drop") |>
-    dplyr::filter(n > 1) |>
-    dplyr::pull(.ecc_x)
+    dplyr::filter(.data$n > 1) |>
+    dplyr::pull(".ecc_x")
 
   if (length(double_x) > 1) {
     lower <- double_x[1:floor(length(double_x) / 2)]
     upper <- double_x[ceiling((length(double_x) / 2) + 1):(length(double_x))]
     dat |>
-      dplyr::filter(roi %in% rois) |>
+      dplyr::filter(.data$roi %in% rois) |>
       dplyr::filter(dplyr::case_when(
-        roi == rois[1] & .ecc_x %in% double_x ~ .ecc_x %in% lower,
-        roi == rois[2] & .ecc_x %in% double_x ~ .ecc_x %in% upper,
+        .data$roi == rois[1] & .data$.ecc_x %in% double_x ~ .data$.ecc_x %in% lower,
+        .data$roi == rois[2] & .data$.ecc_x %in% double_x ~ .data$.ecc_x %in% upper,
         T ~ T
       ))
   } else {
     dat |>
-      dplyr::filter(roi %in% rois) |>
-      dplyr::filter(!(.ecc_x %in% double_x))
+      dplyr::filter(.data$roi %in% rois) |>
+      dplyr::filter(!(.data$.ecc_x %in% double_x))
   }
 }

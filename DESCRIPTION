@@ -1,14 +1,29 @@
 Package: concept
-Title: What the Package Does (One Line, Title Case)
-Version: 0.0.1.0
-Authors@R: 
-    person("First", "Last", , "first.last@example.com", role = c("aut", "cre"))
-Description: What the package does (one paragraph).
-License: `use_mit_license()`, `use_gpl3_license()` or friends to pick a
-    license
+Title: Measure Concept Change in Categorization Tasks
+Version: 0.0.1
+Authors@R: c(
+    person("Rebecca", "Albrecht",
+        email = "rebecca.albrecht@cognition.uni-freiburg.de",
+        role = c("aut", "cre")),
+    person("Mikhail S.", "Spektor", role = "ctb")
+    )
+Description: Estimates adaptive concept change in categorization tasks using
+    boundary-anchored regions of interest. The package provides
+    participant-level effect estimates, beta-binomial bootstrap intervals,
+    and group-level plotting utilities.
+License: GPL-3
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.3.2
 Depends: 
-    R (>= 3.5)
+    R (>= 4.1.0)
+Imports:
+    dplyr,
+    Formula,
+    ggplot2,
+    rlang,
+    tibble
+Suggests:
+    testthat (>= 3.0.0)
+Config/testthat/edition: 3
 LazyData: true

@@ -50,7 +50,7 @@
       .groups = "drop"
     ) |>
     dplyr::summarise(effect = sum(.data$roi_mean, na.rm = TRUE), .groups = "drop")
-  mean_effect <- mean_effect_data |> dplyr::pull(effect)
+  mean_effect <- mean_effect_data |> dplyr::pull("effect")
 
   # bootstrap confidence intervals
   if (bootstrapping) {

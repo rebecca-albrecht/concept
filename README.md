@@ -130,7 +130,28 @@ results_boot <- ecc(
 
 When bootstrapping is enabled, the output includes `boot_ci_lower`, `boot_median`, `boot_ci_upper`, and `boot_mean`.
 
+Bootstrap draws use R's current random-number-generator state. Call
+`set.seed()` before `ecc()` when reproducible intervals are required.
+
 The plotting helper `plot_effect_group()` summarizes participant-level estimates by group. Its error bars are group-level confidence intervals based on the standard error and Student's t distribution; they are not the participant-level bootstrap intervals.
+
+## Estimand and ROI Width
+
+`roi_coverage_percent` determines the number of unique observed stimulus
+intensity levels in each ROI. It is a percentage of the number of observed
+levels, not a percentage of the numeric distance between the smallest and
+largest stimulus values.
+
+The effect first averages the condition difference across stimulus-intensity
+levels within each ROI and then combines the four ROI means using the
+predefined contrast. Consequently, intensity levels receive equal weight
+within an ROI even when they contain different numbers of trials.
+
+## Validation and Reproducibility
+
+Empirical validation, coverage analyses, power analyses, and reproduction
+instructions are available in the
+[OSF project "Measuring concept change"](https://osf.io/wzche/overview).
 
 ## Output
 

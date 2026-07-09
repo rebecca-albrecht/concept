@@ -2,7 +2,7 @@
 % Please edit documentation in R/get_db.R
 \name{.get_db}
 \alias{.get_db}
-\title{Estimate the decision boundary for one participant and condition}
+\title{Estimate the decision boundary for one grouping}
 \usage{
 .get_db(data, condition)
 }
@@ -24,7 +24,7 @@ as 1 equals 0.5:
 \details{
 \deqn{\hat b = - \hat\beta_0 / \hat\beta_1.}
 
-The input data must contain the columns \code{participant}, \code{condition},
-\code{responsenum}, and \code{x}.
+The input data must contain the internal columns \code{.ecc_condition},
+\code{.ecc_response}, and \code{.ecc_x}.
 }
 \keyword{internal}

@@ -107,7 +107,7 @@
       paste0(paste(grouping, collapse = "_"), ".csv")
     )
 
-    write.table(
+    utils::write.table(
       interval_table,
       location,
       sep = ";",
@@ -137,7 +137,7 @@
     }
     est <- est |>
       as.data.frame() |>
-      as_tibble()
+      tibble::as_tibble()
   } else {
     est <- .get_statistic(
       data = intervals,
