@@ -52,7 +52,7 @@ are computed for each participant (grouping) using beta-binomial resampling.}
 \item{prior_alpha, prior_beta}{Shape parameters of the beta prior used for
 beta-binomial resampling. Default is 1.}
 
-\item{dir}{Optional directory path for saving intermediate and treatment tables.}
+\item{dir}{Optional directory path for saving intermediate ROI tables and estimates.}
 }
 \value{
 A tibble with one row per participant/manipulation grouping and columns
@@ -61,7 +61,7 @@ information.
 }
 \description{
 Estimates concept change effects for each participant and condition using a
-boundary-anchored contrast of response changes from an baseline to a treatment
+boundary-anchored contrast of response changes from a baseline to a treatment
 condition.
 }
 \details{

@@ -3,12 +3,12 @@
 \name{.parse_concept_formula}
 \alias{.parse_concept_formula}
 \title{Parse concept formula of the form:
-response ~ x | condition | participant + condition}
+response ~ x | condition | participant + manipulation}
 \usage{
 .parse_concept_formula(formula, data)
 }
 \description{
 Parse concept formula of the form:
-response ~ x | condition | participant + condition
+response ~ x | condition | participant + manipulation
 }
 \keyword{internal}

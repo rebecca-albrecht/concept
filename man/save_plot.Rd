@@ -19,5 +19,5 @@ save_plot(plot, filename, height = 8, width = 8)
 Invisibly returns the input filename.
 }
 \description{
-Internal helper for saving ggplot objects.
+Saves ggplot objects to disk.
 }

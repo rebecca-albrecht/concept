@@ -133,7 +133,23 @@
   rois_high <- c(3, 4)
   dat_return_high <- .filter_rois(dat_return, rois_high)
 
-  return(rbind(dat_return_low, dat_return_high))
+  dat_filtered <- rbind(dat_return_low, dat_return_high)
+
+  if (!all(1:4 %in% dat_filtered$roi)) {
+    dat_filtered <- dat_filtered |>
+      dplyr::mutate(
+        flag = paste(
+          c(
+            .data$flag[1],
+            "not all four rois could be constructed"
+          )[!is.na(c(.data$flag[1], "not all four rois could be constructed"))],
+          collapse = " ;"
+        ),
+        status = 3
+      )
+  }
+
+  return(dat_filtered)
 }
 
 #' Filter overlapping rois between adjacent rois
@@ -168,7 +184,7 @@
       dplyr::filter(dplyr::case_when(
         .data$roi == rois[1] & .data$.ecc_x %in% double_x ~ .data$.ecc_x %in% lower,
         .data$roi == rois[2] & .data$.ecc_x %in% double_x ~ .data$.ecc_x %in% upper,
-        T ~ T
+        TRUE ~ TRUE
       ))
   } else {
     dat |>

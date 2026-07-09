@@ -69,7 +69,7 @@ plot_effect_group <- function(data, measure, group1, group2 = NULL) {
 
 #' Save a plot
 #'
-#' Internal helper for saving ggplot objects.
+#' Saves ggplot objects to disk.
 #'
 #' @param plot A ggplot object.
 #' @param filename Output file path, including file extension.

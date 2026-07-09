@@ -1,7 +1,7 @@
 #' Estimate concept change
 #'
 #' Estimates concept change effects for each participant and condition using a
-#' boundary-anchored contrast of response changes from an baseline to a treatment
+#' boundary-anchored contrast of response changes from a baseline to a treatment
 #' condition.
 #'
 #' The function uses a formula interface to define the response variable, the
@@ -32,7 +32,7 @@
 #' @param n_boot Number of bootstrap draws. Default is 1000.
 #' @param prior_alpha,prior_beta Shape parameters of the beta prior used for
 #'   beta-binomial resampling. Default is 1.
-#' @param dir Optional directory path for saving intermediate and treatment tables.
+#' @param dir Optional directory path for saving intermediate ROI tables and estimates.
 #' @return A tibble with one row per participant/manipulation grouping and columns
 #'   for the estimated effect, optional bootstrap summaries, and diagnostic
 #'   information.
@@ -68,6 +68,14 @@ estimate_concept_change <- function(
   intensity_var <- df_parsed$.ecc_x
   time_var <- df_parsed$.ecc_condition
   grouping_var <- df_parsed$.ecc_grouping
+
+  if (!is.numeric(roi_coverage_percent) ||
+    length(roi_coverage_percent) != 1L ||
+    !is.finite(roi_coverage_percent) ||
+    roi_coverage_percent <= 0 ||
+    roi_coverage_percent > 50) {
+    stop("`roi_coverage_percent` must be a single finite number greater than 0 and no greater than 50.", call. = FALSE)
+  }
 
   scale_size <- length(unique(df[, intensity_var]))
   roi_size <- max(1L, (scale_size * roi_coverage_percent) %/% 100L)
@@ -143,7 +151,7 @@ estimate_concept_change <- function(
 ecc <- estimate_concept_change
 
 #' Parse concept formula of the form:
-#'   response ~ x | condition | participant + condition
+#'   response ~ x | condition | participant + manipulation
 #' @keywords internal
 .parse_concept_formula <- function(formula, data) {
   # Coerce & build model frame (keeps only referenced variables, drops NAs consistently)

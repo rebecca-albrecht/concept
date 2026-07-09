@@ -50,6 +50,26 @@ test_that("a single shared intensity remains excluded from both ROIs", {
   expect_equal(result$roi, c(1, 2))
 })
 
+test_that("missing any of the four ROIs is treated as an error", {
+  data <- rbind(
+    data.frame(
+      .ecc_condition = "baseline",
+      .ecc_x = 1:4,
+      .ecc_response = c(0, 1, 1, 1)
+    ),
+    data.frame(
+      .ecc_condition = "treatment",
+      .ecc_x = 1:4,
+      .ecc_response = c(0, 0, 1, 1)
+    )
+  )
+
+  result <- concept:::.get_rois(data, 1.5, 1, "baseline", "treatment")
+
+  expect_equal(unique(result$status), 3)
+  expect_match(unique(result$flag), "not all four rois")
+})
+
 test_that("absence of common intensity values returns an error result", {
   data <- rbind(
     data.frame(.ecc_condition = "baseline", .ecc_x = 1:3, .ecc_response = c(0, 0, 1)),
