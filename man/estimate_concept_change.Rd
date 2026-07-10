@@ -41,11 +41,12 @@ ecc(
 (default \code{"baseline"} and \code{"treatment"}).}
 
 \item{roi_coverage_percent}{Number of unique observed stimulus-intensity
-levels included in each analysis band, expressed as a percentage of all
-unique observed intensity levels. Default is 6.}
+levels included in each region of interest, expressed as a percentage of
+all unique observed intensity levels. The resulting number of levels is
+rounded down, with a minimum of one level per region. Default is 6.}
 
 \item{bootstrapping}{Logical. If \code{TRUE}, bootstrap confidence intervals
-are computed for each participant (grouping) using beta-binomial resampling.}
+are computed for each grouping combination using beta-binomial resampling.}
 
 \item{n_boot}{Number of bootstrap draws. Default is 1000.}
 
@@ -55,12 +56,12 @@ beta-binomial resampling. Default is 1.}
 \item{dir}{Optional directory path for saving intermediate ROI tables and estimates.}
 }
 \value{
-A tibble with one row per participant/manipulation grouping and columns
+A tibble with one row per grouping combination and columns
 for the estimated effect, optional bootstrap summaries, and diagnostic
 information.
 }
 \description{
-Estimates concept change effects for each participant and condition using a
+Estimates concept change effects for each grouping combination using a
 boundary-anchored contrast of response changes from a baseline to a treatment
 condition.
 }
@@ -80,9 +81,12 @@ The formula declares:
 \code{participant} and \code{manipulation}
 }
 
-Within each ROI, stimulus-intensity levels receive equal weight
-regardless of the number of trials observed at each level. For reproducible
-bootstrap intervals, call \code{\link[=set.seed]{set.seed()}} before this function.
+The four ROI means are combined using contrast weights
+\code{c(-0.5, 0.5, 0.5, -0.5)} for ROIs 1 to 4. Within each ROI,
+stimulus-intensity levels receive equal weight regardless of the number of
+trials observed at each level. Bootstrap intervals condition on the
+estimated decision boundary and selected ROIs. For reproducible bootstrap
+intervals, call \code{\link[=set.seed]{set.seed()}} before this function.
 }
 \examples{
 estimate_concept_change(responsenum ~ x | condition | participant + manipulation,

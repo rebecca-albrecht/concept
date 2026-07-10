@@ -1,22 +1,23 @@
-#' Compute the participant-level concept change effect
+#' Compute the grouping-level concept change effect
 #'
 #' Computes the contrast-weighted mean change across the four regions of
 #' interest (ROIs) for one participant or grouped subset. The effect is
-#' calculated from per-ROI phase differences and predefined contrast weights.
+#' calculated from per-ROI condition differences using contrast weights
+#' `c(-0.5, 0.5, 0.5, -0.5)` for ROIs 1 to 4.
 #'
 #' Optionally, confidence intervals are obtained using beta-binomial
 #' resampling of the observed response counts in the baseline and treatment
-#' phases.
+#' conditions.
 #'
 #' @param data A data frame containing ROI-level response summaries. Must
-#'   include `roi`, `x`, `diff`, `n_baseline`, `sum_baseline`,
+#'   include `roi`, `.ecc_x`, `diff`, `n_baseline`, `sum_baseline`,
 #'   `n_treatment`, and `sum_treatment`.
 #' @param bootstrapping Logical. If `TRUE`, bootstrap confidence intervals are
 #'   computed.
 #' @param alpha,beta Prior parameters for the beta-binomial resampling scheme.
 #' @param n_boot Number of bootstrap draws.
 #' @param baseline_label,treatment_label Labels identifying the baseline and
-#'   treatment phases.
+#'   treatment conditions.
 #'
 #' @return A tibble with the point estimate `effect_mean`. If bootstrapping is
 #'   enabled, bootstrap summaries are also returned.
@@ -95,6 +96,8 @@
 #'   contrast weights.
 #' @param alpha,beta Prior parameters of the beta distribution.
 #' @param n_boot Number of bootstrap draws.
+#' @param baseline_label,treatment_label Labels identifying the baseline and
+#'   treatment conditions.
 #'
 #' @return A data frame in long format with one row per stimulus value,
 #' roi, and bootstrap draw.
@@ -145,11 +148,9 @@
     size <- rep.int(n_vec, times = n_boot)
 
     # Draw probabilities from Beta posterior
-    # set.seed(123)
     p <- stats::rbeta(k * n_boot, shape1 = shape1, shape2 = shape2)
 
     # Draw binomial samples and normalize to proportions
-    # set.seed(123)
     draws <- stats::rbinom(k * n_boot, size = size, prob = p) / size
 
     # Fill matrix (column = bootstrap draw)

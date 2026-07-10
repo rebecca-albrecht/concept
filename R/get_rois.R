@@ -26,7 +26,7 @@
                       roi_size,
                       baseline_label,
                       treatment_label) {
-  flag <- c()
+  flag <- NA_character_
   status <- 1
 
   # aggregate to x-level for both conditions
@@ -143,6 +143,20 @@
             .data$flag[1],
             "not all four rois could be constructed"
           )[!is.na(c(.data$flag[1], "not all four rois could be constructed"))],
+          collapse = " ;"
+        ),
+        status = 3
+      )
+  }
+
+  if (any(duplicated(dat_filtered$.ecc_x))) {
+    dat_filtered <- dat_filtered |>
+      dplyr::mutate(
+        flag = paste(
+          unique(c(
+            .data$flag[!is.na(.data$flag)],
+            "rois overlap across non-adjacent regions"
+          )),
           collapse = " ;"
         ),
         status = 3

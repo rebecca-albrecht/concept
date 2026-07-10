@@ -13,6 +13,9 @@ contrast weights.}
 \item{alpha, beta}{Prior parameters of the beta distribution.}
 
 \item{n_boot}{Number of bootstrap draws.}
+
+\item{baseline_label, treatment_label}{Labels identifying the baseline and
+treatment conditions.}
 }
 \value{
 A data frame in long format with one row per stimulus value,

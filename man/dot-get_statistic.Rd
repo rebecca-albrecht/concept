@@ -2,7 +2,7 @@
 % Please edit documentation in R/get_statistic.R
 \name{.get_statistic}
 \alias{.get_statistic}
-\title{Compute the participant-level concept change effect}
+\title{Compute the grouping-level concept change effect}
 \usage{
 .get_statistic(
   data,
@@ -16,7 +16,7 @@
 }
 \arguments{
 \item{data}{A data frame containing ROI-level response summaries. Must
-include \code{roi}, \code{x}, \code{diff}, \code{n_baseline}, \code{sum_baseline},
+include \code{roi}, \code{.ecc_x}, \code{diff}, \code{n_baseline}, \code{sum_baseline},
 \code{n_treatment}, and \code{sum_treatment}.}
 
 \item{bootstrapping}{Logical. If \code{TRUE}, bootstrap confidence intervals are
@@ -27,7 +27,7 @@ computed.}
 \item{n_boot}{Number of bootstrap draws.}
 
 \item{baseline_label, treatment_label}{Labels identifying the baseline and
-treatment phases.}
+treatment conditions.}
 }
 \value{
 A tibble with the point estimate \code{effect_mean}. If bootstrapping is
@@ -36,11 +36,12 @@ enabled, bootstrap summaries are also returned.
 \description{
 Computes the contrast-weighted mean change across the four regions of
 interest (ROIs) for one participant or grouped subset. The effect is
-calculated from per-ROI phase differences and predefined contrast weights.
+calculated from per-ROI condition differences using contrast weights
+\code{c(-0.5, 0.5, 0.5, -0.5)} for ROIs 1 to 4.
 }
 \details{
 Optionally, confidence intervals are obtained using beta-binomial
 resampling of the observed response counts in the baseline and treatment
-phases.
+conditions.
 }
 \keyword{internal}

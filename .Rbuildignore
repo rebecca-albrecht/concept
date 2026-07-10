@@ -2,3 +2,5 @@
 ^\.Rproj\.user$
 ^\.git$
 ^\.agents$
+^\.github$
+^LICENSE\.md$

@@ -58,8 +58,8 @@
       dplyr::bind_cols(
         est,
         dplyr::tibble(
-        n_x_baseline = sum(df$.ecc_condition == baseline_label, na.rm = TRUE),
-        n_x_treatment = sum(df$.ecc_condition == treatment_label, na.rm = TRUE),
+        n_trials_baseline = sum(df$.ecc_condition == baseline_label, na.rm = TRUE),
+        n_trials_treatment = sum(df$.ecc_condition == treatment_label, na.rm = TRUE),
         status = "error",
         flags = "no_baseline_or_treatment"
         )
@@ -171,8 +171,8 @@
       db = db_info$decision_boundary,
       beta0 = db_info$beta0,
       beta1 = db_info$beta1,
-      n_x_baseline = n_baseline,
-      n_x_treatment = n_treatment,
+      n_trials_baseline = n_baseline,
+      n_trials_treatment = n_treatment,
       status = c("ok", "flagged", "error")[status],
       flags = paste(flags[!is.na(flags)], collapse = " ;")
     )

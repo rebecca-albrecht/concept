@@ -1,6 +1,6 @@
 #' Estimate concept change
 #'
-#' Estimates concept change effects for each participant and condition using a
+#' Estimates concept change effects for each grouping combination using a
 #' boundary-anchored contrast of response changes from a baseline to a treatment
 #' condition.
 #'
@@ -25,21 +25,25 @@
 #' @param baseline_label,treatment_label Labels identifying the baseline and treatment conditions
 #'   (default \code{"baseline"} and \code{"treatment"}).
 #' @param roi_coverage_percent Number of unique observed stimulus-intensity
-#'   levels included in each analysis band, expressed as a percentage of all
-#'   unique observed intensity levels. Default is 6.
+#'   levels included in each region of interest, expressed as a percentage of
+#'   all unique observed intensity levels. The resulting number of levels is
+#'   rounded down, with a minimum of one level per region. Default is 6.
 #' @param bootstrapping Logical. If \code{TRUE}, bootstrap confidence intervals
-#'   are computed for each participant (grouping) using beta-binomial resampling.
+#'   are computed for each grouping combination using beta-binomial resampling.
 #' @param n_boot Number of bootstrap draws. Default is 1000.
 #' @param prior_alpha,prior_beta Shape parameters of the beta prior used for
 #'   beta-binomial resampling. Default is 1.
 #' @param dir Optional directory path for saving intermediate ROI tables and estimates.
-#' @return A tibble with one row per participant/manipulation grouping and columns
+#' @return A tibble with one row per grouping combination and columns
 #'   for the estimated effect, optional bootstrap summaries, and diagnostic
 #'   information.
 #'
-#' @details Within each ROI, stimulus-intensity levels receive equal weight
-#'   regardless of the number of trials observed at each level. For reproducible
-#'   bootstrap intervals, call [set.seed()] before this function.
+#' @details The four ROI means are combined using contrast weights
+#'   `c(-0.5, 0.5, 0.5, -0.5)` for ROIs 1 to 4. Within each ROI,
+#'   stimulus-intensity levels receive equal weight regardless of the number of
+#'   trials observed at each level. Bootstrap intervals condition on the
+#'   estimated decision boundary and selected ROIs. For reproducible bootstrap
+#'   intervals, call [set.seed()] before this function.
 #'
 #' @importFrom rlang .data
 #'
@@ -92,19 +96,15 @@ estimate_concept_change <- function(
     )
 
   if (!is.null(dir)) {
-    if (!file.exists(dir)) {
-      if (!is.null(dir)) {
-        dir.create(file.path(dir, "rois"),
-          recursive = TRUE,
-          showWarnings = FALSE
-        )
+    dir.create(file.path(dir, "rois"),
+      recursive = TRUE,
+      showWarnings = FALSE
+    )
 
-        dir.create(file.path(dir, "estimates"),
-          recursive = TRUE,
-          showWarnings = FALSE
-        )
-      }
-    }
+    dir.create(file.path(dir, "estimates"),
+      recursive = TRUE,
+      showWarnings = FALSE
+    )
   }
 
 
@@ -157,10 +157,17 @@ ecc <- estimate_concept_change
   # Coerce & build model frame (keeps only referenced variables, drops NAs consistently)
 
   f <- Formula::as.Formula(formula)
-  lhs <- all.vars(formula(f, lhs = 1, rhs = 0))
-  rhs_1 <- all.vars(formula(f, lhs = 0, rhs = 1))
-  rhs_2 <- all.vars(formula(f, lhs = 0, rhs = 2))
-  rhs_3 <- all.vars(formula(f, lhs = 0, rhs = 3))
+  get_formula_vars <- function(lhs, rhs) {
+    tryCatch(
+      suppressWarnings(all.vars(formula(f, lhs = lhs, rhs = rhs))),
+      error = function(e) character(0)
+    )
+  }
+
+  lhs <- get_formula_vars(lhs = 1, rhs = 0)
+  rhs_1 <- get_formula_vars(lhs = 0, rhs = 1)
+  rhs_2 <- get_formula_vars(lhs = 0, rhs = 2)
+  rhs_3 <- get_formula_vars(lhs = 0, rhs = 3)
 
   if (length(lhs) != 1) {
     stop("Formula must have exactly one response variable on the left-hand side (binary 0/1).")

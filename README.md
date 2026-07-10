@@ -25,7 +25,7 @@ pak::pak("rebecca-albrecht/concept")
 ## Main Features
 
 - Boundary-anchored estimation of concept change
-- Participant-level effect estimates
+- Grouping-level effect estimates based on user-defined grouping variables
 - Flexible formula interface
 - Optional beta-binomial bootstrap confidence intervals
 - ROI-based analysis around decision boundaries
@@ -100,6 +100,9 @@ The package uses a three-part formula syntax:
 response ~ intensity | condition | grouping
 ```
 
+The grouping part is optional. If it is omitted, the data are collapsed into
+one overall estimate.
+
 Example:
 
 ```r
@@ -115,7 +118,7 @@ where:
 
 ## Bootstrap Confidence Intervals
 
-By default, `ecc()` returns point estimates only. Set `bootstrapping = TRUE` to compute participant-level beta-binomial bootstrap intervals:
+By default, `ecc()` returns point estimates only. Set `bootstrapping = TRUE` to compute beta-binomial bootstrap intervals for each grouping combination:
 
 ```r
 results_boot <- ecc(
@@ -133,19 +136,25 @@ When bootstrapping is enabled, the output includes `boot_ci_lower`, `boot_median
 Bootstrap draws use R's current random-number-generator state. Call
 `set.seed()` before `ecc()` when reproducible intervals are required.
 
-The plotting helper `plot_effect_group()` summarizes participant-level estimates by group. Its error bars are group-level confidence intervals based on the standard error and Student's t distribution; they are not the participant-level bootstrap intervals.
+The plotting helper `plot_effect_group()` summarizes estimates by group. Its error bars are group-level confidence intervals based on the standard error and Student's t distribution; they are not the bootstrap intervals returned for individual grouping combinations.
 
 ## Estimand and ROI Width
 
 `roi_coverage_percent` determines the number of unique observed stimulus
 intensity levels in each ROI. It is a percentage of the number of observed
 levels, not a percentage of the numeric distance between the smallest and
-largest stimulus values.
+largest stimulus values. The percentage is applied per ROI and rounded down
+to the nearest whole number of levels, with a minimum of one level per ROI.
 
 The effect first averages the condition difference across stimulus-intensity
 levels within each ROI and then combines the four ROI means using the
-predefined contrast. Consequently, intensity levels receive equal weight
-within an ROI even when they contain different numbers of trials.
+predefined contrast `c(-0.5, 0.5, 0.5, -0.5)` for ROIs 1 to 4.
+Consequently, intensity levels receive equal weight within an ROI even when
+they contain different numbers of trials.
+
+Bootstrap intervals condition on the estimated decision boundary and selected
+ROIs; they do not propagate uncertainty in the boundary estimate or ROI
+selection.
 
 ## Validation and Reproducibility
 
@@ -157,13 +166,16 @@ instructions are available in the
 
 `ecc()` returns one row per grouping combination. Common output columns are:
 
-- `effect_mean`: participant-level concept-change estimate
+- `effect_mean`: concept-change estimate for the grouping combination
 - `db`: estimated baseline decision boundary
 - `beta0`, `beta1`: logistic boundary-model coefficients
-- `n_x_baseline`, `n_x_treatment`: observations contributing to the selected ROIs
+- `n_trials_baseline`, `n_trials_treatment`: trial counts contributing to the selected ROIs
 - `status`: estimation status (`ok`, `flagged`, or `error`)
 - `flags`: diagnostic messages
-- `boot_ci_lower`, `boot_ci_upper`: participant-level bootstrap interval bounds, returned only when bootstrapping is enabled
+- `boot_ci_lower`, `boot_median`, `boot_ci_upper`, `boot_mean`: bootstrap summaries, returned only when bootstrapping is enabled
+
+`save_plot()` is exported as a small wrapper around `ggplot2::ggsave()` for
+saving plots returned by `plot_effect_group()`.
 
 ## Current Status
 

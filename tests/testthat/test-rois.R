@@ -36,6 +36,8 @@ test_that("normal ROI construction returns four distinct ROI labels", {
 
   expect_equal(sort(unique(result$roi)), 1:4)
   expect_true(all(result$status == 1))
+  expect_true("flag" %in% names(result))
+  expect_true(all(is.na(result$flag)))
   expect_equal(anyDuplicated(result[, c(".ecc_x", "roi")]), 0L)
   expect_equal(nrow(result), 4L)
 })
@@ -52,6 +54,27 @@ test_that("overlap with the start of the high ROI is flagged", {
   expect_true(all(result$status == 2))
   expect_match(unique(result$flag), "rois are not distinct")
 })
+
+test_that("cross-pair ROI overlap is treated as an error", {
+  data <- rbind(
+    data.frame(
+      .ecc_condition = "baseline",
+      .ecc_x = 1:10,
+      .ecc_response = as.integer(1:10 > 2)
+    ),
+    data.frame(
+      .ecc_condition = "treatment",
+      .ecc_x = 1:10,
+      .ecc_response = as.integer(1:10 > 2)
+    )
+  )
+
+  result <- concept:::.get_rois(data, 2.5, 6, "baseline", "treatment")
+
+  expect_equal(unique(result$status), 3)
+  expect_match(unique(result$flag), "non-adjacent")
+})
+
 
 test_that("a single shared intensity remains excluded from both ROIs", {
   data <- data.frame(

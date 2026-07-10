@@ -6,6 +6,8 @@ test_that("included example data can be estimated", {
 
   expect_s3_class(result, "data.frame")
   expect_true(all(c("effect_mean", "db", "status", "flags") %in% names(result)))
+  expect_true(all(c("n_trials_baseline", "n_trials_treatment") %in% names(result)))
+  expect_false(any(c("n_x_baseline", "n_x_treatment") %in% names(result)))
   expect_gt(nrow(result), 0L)
 })
 
@@ -182,6 +184,7 @@ test_that("intermediate ROI and estimate files are written when dir is supplied"
     participant == participant[1] & manipulation == manipulation[1]
   )
   output_dir <- file.path(tempdir(), paste0("concept-test-", Sys.getpid()))
+  dir.create(output_dir, recursive = TRUE, showWarnings = FALSE)
 
   result <- ecc(
     responsenum ~ x | condition | participant + manipulation,
