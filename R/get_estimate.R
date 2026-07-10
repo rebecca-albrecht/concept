@@ -64,6 +64,9 @@ estimate_concept_change <- function(
     prior_alpha = 1,
     prior_beta = 1,
     dir = NULL) {
+  baseline_label <- as.character(baseline_label)
+  treatment_label <- as.character(treatment_label)
+
   # Parse formula
   df_parsed <- .parse_concept_formula(formula, data)
 
@@ -93,6 +96,9 @@ estimate_concept_change <- function(
       .ecc_response = !!rlang::sym(response_var),
       .ecc_x = !!rlang::sym(intensity_var),
       .ecc_condition = !!rlang::sym(time_var),
+    ) |>
+    dplyr::mutate(
+      .ecc_condition = as.character(.data$.ecc_condition)
     )
 
   if (!is.null(dir)) {

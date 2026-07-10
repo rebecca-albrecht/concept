@@ -88,6 +88,21 @@ test_that("invalid roi coverage values are rejected", {
   )
 })
 
+test_that("factor condition labels are compared by value", {
+  data_factor <- concept_data
+  data_factor$condition <- factor(data_factor$condition)
+
+  result <- ecc(
+    responsenum ~ x | condition | participant + manipulation,
+    data = data_factor,
+    baseline_label = factor("baseline", levels = "baseline"),
+    treatment_label = factor("treatment", levels = "treatment")
+  )
+
+  expect_s3_class(result, "data.frame")
+  expect_false(any(result$status == "error"))
+})
+
 test_that("missing-condition groups keep the non-bootstrap output schema", {
   first_participant <- concept_data$participant[1]
   incomplete <- subset(
