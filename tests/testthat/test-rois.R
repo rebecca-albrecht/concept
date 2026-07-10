@@ -25,6 +25,21 @@ test_that("decision boundaries at either scale edge are rejected", {
   expect_true(all(is.na(upper$roi)))
 })
 
+test_that("normal ROI construction returns four distinct ROI labels", {
+  result <- concept:::.get_rois(
+    make_roi_data(),
+    decision_boundary = 5.5,
+    roi_size = 1,
+    baseline_label = "baseline",
+    treatment_label = "treatment"
+  )
+
+  expect_equal(sort(unique(result$roi)), 1:4)
+  expect_true(all(result$status == 1))
+  expect_equal(anyDuplicated(result[, c(".ecc_x", "roi")]), 0L)
+  expect_equal(nrow(result), 4L)
+})
+
 test_that("overlap with the start of the high ROI is flagged", {
   result <- concept:::.get_rois(
     make_roi_data(),

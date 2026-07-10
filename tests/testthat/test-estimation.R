@@ -9,6 +9,24 @@ test_that("included example data can be estimated", {
   expect_gt(nrow(result), 0L)
 })
 
+test_that("ecc alias matches estimate_concept_change", {
+  one_group <- subset(
+    concept_data,
+    participant == participant[1] & manipulation == manipulation[1]
+  )
+
+  alias_result <- ecc(
+    responsenum ~ x | condition | participant + manipulation,
+    data = one_group
+  )
+  full_name_result <- estimate_concept_change(
+    responsenum ~ x | condition | participant + manipulation,
+    data = one_group
+  )
+
+  expect_equal(alias_result, full_name_result)
+})
+
 test_that("missing conditions are rejected", {
   baseline_only <- subset(concept_data, condition == "baseline")
 
@@ -45,6 +63,24 @@ test_that("invalid roi coverage values are rejected", {
       responsenum ~ x | condition | participant + manipulation,
       data = concept_data,
       roi_coverage_percent = 51
+    ),
+    "roi_coverage_percent"
+  )
+
+  expect_error(
+    ecc(
+      responsenum ~ x | condition | participant + manipulation,
+      data = concept_data,
+      roi_coverage_percent = c(5, 6)
+    ),
+    "roi_coverage_percent"
+  )
+
+  expect_error(
+    ecc(
+      responsenum ~ x | condition | participant + manipulation,
+      data = concept_data,
+      roi_coverage_percent = "6"
     ),
     "roi_coverage_percent"
   )
@@ -95,4 +131,68 @@ test_that("bootstrap results follow the external random seed", {
   )
 
   expect_equal(first, second)
+})
+
+test_that("identical baseline and treatment responses give zero effect", {
+  one_group_baseline <- subset(
+    concept_data,
+    participant == participant[1] &
+      manipulation == manipulation[1] &
+      condition == "baseline"
+  )
+
+  one_group_treatment <- one_group_baseline
+  one_group_treatment$condition <- "treatment"
+  identical_conditions <- rbind(one_group_baseline, one_group_treatment)
+
+  result <- ecc(
+    responsenum ~ x | condition | participant + manipulation,
+    data = identical_conditions
+  )
+
+  expect_equal(result$effect_mean, 0)
+})
+
+test_that("row order and irrelevant columns do not affect estimates", {
+  one_group <- subset(
+    concept_data,
+    participant == participant[1] & manipulation == manipulation[1]
+  )
+
+  shuffled <- one_group[rev(seq_len(nrow(one_group))), ]
+  shuffled$irrelevant_column <- seq_len(nrow(shuffled))
+
+  original_result <- ecc(
+    responsenum ~ x | condition | participant + manipulation,
+    data = one_group
+  )
+  shuffled_result <- ecc(
+    responsenum ~ x | condition | participant + manipulation,
+    data = shuffled
+  )
+
+  expect_equal(shuffled_result$effect_mean, original_result$effect_mean)
+  expect_equal(shuffled_result$db, original_result$db)
+  expect_equal(shuffled_result$status, original_result$status)
+})
+
+test_that("intermediate ROI and estimate files are written when dir is supplied", {
+  one_group <- subset(
+    concept_data,
+    participant == participant[1] & manipulation == manipulation[1]
+  )
+  output_dir <- file.path(tempdir(), paste0("concept-test-", Sys.getpid()))
+
+  result <- ecc(
+    responsenum ~ x | condition | participant + manipulation,
+    data = one_group,
+    dir = output_dir
+  )
+
+  expect_s3_class(result, "data.frame")
+  expect_true(dir.exists(file.path(output_dir, "rois")))
+  expect_true(dir.exists(file.path(output_dir, "estimates")))
+  expect_gt(length(list.files(file.path(output_dir, "rois"), recursive = TRUE)), 0L)
+  expect_length(list.files(file.path(output_dir, "estimates"), pattern = "\\.rds$"), 1L)
+  expect_length(list.files(file.path(output_dir, "estimates"), pattern = "\\.csv$"), 1L)
 })
