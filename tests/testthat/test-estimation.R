@@ -103,6 +103,31 @@ test_that("factor condition labels are compared by value", {
   expect_false(any(result$status == "error"))
 })
 
+test_that("grouping variable named condition does not mask phase labels", {
+  data_condition_group <- data.frame(
+    participant = rep(101:102, each = 20),
+    condition = rep(
+      c("Stable Prevalence Condition", "Decreasing Prevalence Condition"),
+      each = 20
+    ),
+    timebin5 = rep(rep(c(1, 5), each = 5), 4),
+    color = rep(1:5, 8),
+    responsenum = rep(c(0, 0, 1, 1, 1), 8)
+  )
+
+  result <- ecc(
+    responsenum ~ color | timebin5 | participant + condition,
+    data = data_condition_group,
+    baseline_label = 1,
+    treatment_label = 5,
+    roi_coverage_percent = 1
+  )
+
+  expect_true(all(result$n_trials_baseline > 0))
+  expect_true(all(result$n_trials_treatment > 0))
+  expect_false(any(result$status == "error"))
+})
+
 test_that("missing-condition groups keep the non-bootstrap output schema", {
   first_participant <- concept_data$participant[1]
   incomplete <- subset(

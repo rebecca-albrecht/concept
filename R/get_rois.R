@@ -30,11 +30,13 @@
   status <- 1
 
   # aggregate to x-level for both conditions
-  dat_p <- data |>
-    dplyr::filter(
-      .data$.ecc_condition == baseline_label |
-        .data$.ecc_condition == treatment_label
-    ) |>
+  data_conditions <- data[
+    data$.ecc_condition %in% c(baseline_label, treatment_label),
+    ,
+    drop = FALSE
+  ]
+
+  dat_p <- data_conditions |>
     dplyr::group_by(.data$.ecc_condition, .data$.ecc_x) |>
     dplyr::summarise(
       mean = mean(.data$.ecc_response),
@@ -43,8 +45,8 @@
       .groups = "drop"
     )
 
-  dat_baseline <- dat_p |> dplyr::filter(.data$.ecc_condition == baseline_label)
-  dat_treatment <- dat_p |> dplyr::filter(.data$.ecc_condition == treatment_label)
+  dat_baseline <- dat_p[dat_p$.ecc_condition == baseline_label, , drop = FALSE]
+  dat_treatment <- dat_p[dat_p$.ecc_condition == treatment_label, , drop = FALSE]
 
   # merge baseline and treatment on x
   dat_p_merged <- merge(

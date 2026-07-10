@@ -19,7 +19,7 @@
 #' @keywords internal
 .get_db <- function(data, condition) {
   # Keep only trials from the requested condition.
-  data_condition <- dplyr::filter(data, .data$.ecc_condition == condition)
+  data_condition <- data[data$.ecc_condition == condition, , drop = FALSE]
 
   error_result <- function(message) {
     tibble::tibble(
